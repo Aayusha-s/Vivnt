@@ -9,9 +9,22 @@ import Ticket from "@/models/Ticket";
 import { HttpError } from "@/utils/api/httpError";
 import { recordActivity } from "@/services/profiles/profile.service";
 import { BookTicketInput } from "@/utils/tickets/validation";
+import { createNotificationOnce } from "@/services/notifications/notification.service";
 
 const ticketNumber = () => `VIVNT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
 const logBooking = (stage: string, fields: Record<string, unknown>) => { if (process.env.NODE_ENV !== "production") console.info(`[Booking] ${stage}`, fields); };
+
+const notifyCompletedBooking = async (bookingId: Types.ObjectId, paymentCompleted: boolean) => {
+	const booking = await Booking.findById(bookingId).populate("event", "title organizer").lean().exec();
+	if (!booking) return;
+	const event = booking.event as unknown as { _id: Types.ObjectId; title: string; organizer: Types.ObjectId };
+	const eventLink = `/event-details/${event._id}`;
+	await Promise.all([
+		createNotificationOnce(booking.user, "booking", "Ticket booked successfully", `Your ticket for ${event.title} has been booked successfully.`, eventLink),
+		...(paymentCompleted ? [createNotificationOnce(booking.user, "payment_success", "Payment successful", `Your payment for ${event.title} was successful.`, `/tickets`)] : []),
+		createNotificationOnce(event.organizer, "ticket_booking", "New ticket booking", `A new ticket booking was made for ${event.title}.`, "/organizerdashboard"),
+	]);
+};
 
 export const bookingService = {
 	createBooking: async (userId: Types.ObjectId | string, input: BookTicketInput) => {
@@ -87,6 +100,7 @@ export const bookingService = {
 				await bookingRecord.save({ session });
 				await recordActivity(bookingRecord.user, "booking", "Registered for a free event", { subject: event._id, subjectModel: "Event", link: `/event-details/${event._id}` });
 			});
+			await notifyCompletedBooking(bookingId, false);
 			return bookingRecord ?? null;
 		} finally {
 			await session.endSession();
@@ -183,6 +197,7 @@ export const bookingService = {
 				await Promise.all([booking.save({ session }), payment.save({ session })]);
 				logBooking("complete transaction", { bookingId: booking._id.toString(), paymentId: payment._id.toString(), ticketCount: tickets.length, status: booking.status });
 			});
+			await notifyCompletedBooking(bookingId, true);
 			return tickets;
 		} finally {
 			await session.endSession();

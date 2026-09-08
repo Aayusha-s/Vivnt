@@ -2,7 +2,7 @@ import mongoose, { HydratedDocument, Model, Schema, Types } from "mongoose";
 
 export interface INotification {
 	user: Types.ObjectId;
-	type: "registration" | "booking" | "payment_success" | "event_reminder" | "organizer_update" | "admin_update" | "vendor_update" | "follow" | "stall_opportunity" | "stall_deadline";
+	type: "registration" | "booking" | "payment_success" | "event_reminder" | "event_approval" | "event_update" | "event_cancelled" | "ticket_booking" | "review" | "organizer_update" | "admin_update" | "vendor_update" | "stall_update" | "stall_application" | "follow" | "stall_opportunity" | "stall_deadline" | "ticket_checkin";
 	title: string;
 	message: string;
 	read: boolean;
@@ -17,7 +17,7 @@ const notificationSchema = new Schema<INotification>(
 		user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
 		type: {
 			type: String,
-			enum: ["registration", "booking", "payment_success", "event_reminder", "organizer_update", "admin_update", "vendor_update", "follow", "stall_opportunity", "stall_deadline"],
+			enum: ["registration", "booking", "payment_success", "event_reminder", "event_approval", "event_update", "event_cancelled", "ticket_booking", "review", "organizer_update", "admin_update", "vendor_update", "stall_update", "stall_application", "follow", "stall_opportunity", "stall_deadline", "ticket_checkin"],
 			required: true,
 		},
 		title: { type: String, required: true, trim: true, maxlength: 200 },

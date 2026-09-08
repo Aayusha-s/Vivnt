@@ -148,6 +148,14 @@ export const bookStall = async (ownerId: Types.ObjectId | string, input: StallRe
 	});
 
 	await vendor.save();
+	const vendorOwner = await User.findById(vendor.owner).select("name").lean().exec();
+	createNotification(
+		event.organizer,
+		"stall_application",
+		"New stall application",
+		`${vendorOwner?.name ?? "A vendor"} applied for a stall at ${event.title}.`,
+		"/organizerdashboard",
+	).catch(console.error);
 	return vendor;
 };
 
@@ -234,6 +242,6 @@ export const updateStallApprovalStatus = async (vendorId: string, eventId: strin
 	}
 	booking.status = status;
 	await vendor.save();
-	createNotification(vendor.owner, "vendor_update", `Stall request ${status === "confirmed" ? "approved" : "rejected"}`, `Your stall request has been ${status === "confirmed" ? "approved" : "rejected"} by an administrator.`, "/vendor/events").catch(console.error);
+	createNotification(vendor.owner, "stall_update", `Stall request ${status === "confirmed" ? "approved" : "rejected"}`, `Your stall request has been ${status === "confirmed" ? "approved" : "rejected"} by an administrator.`, "/vendor/events").catch(console.error);
 	return vendor;
 };

@@ -4,9 +4,11 @@ import Event from "@/models/Event";
 import Ticket from "@/models/Ticket";
 import SavedEvent from "@/models/SavedEvent";
 import Review from "@/models/Review";
+import User from "@/models/User";
 import Comment from "@/models/Comment";
 import { HttpError } from "@/utils/api/httpError";
 import { recordActivity } from "@/services/profiles/profile.service";
+import { createNotification } from "@/services/notifications/notification.service";
 
 const eventLookup = [
   {
@@ -171,11 +173,23 @@ export const upsertReview = async (
       "Only paid event attendees may review this event.",
       "ATTENDANCE_REQUIRED",
     );
+  const existingReview = await Review.exists({ user, event });
   const review = await Review.findOneAndUpdate(
     { user, event },
     { rating, text: cleanText },
     { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
   );
+  const eventRecord = await Event.findById(event).select("title organizer").lean().exec();
+  if (!existingReview && eventRecord && !eventRecord.organizer.equals(user)) {
+    const reviewer = await User.findById(user).select("name").lean().exec();
+    createNotification(
+      eventRecord.organizer,
+      "review",
+      "New event review",
+      `${reviewer?.name ?? "An attendee"} reviewed ${eventRecord.title}.`,
+      `/event-details/${event}`,
+    ).catch(console.error);
+  }
   await recordActivity(user, "review", "Reviewed an event", {
     subject: review._id,
     subjectModel: "Review",

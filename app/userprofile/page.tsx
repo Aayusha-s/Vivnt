@@ -481,7 +481,7 @@ const ProfilePage = () => {
                                 <QrCode size={20} /> Verification Statistics
                             </h3>
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-                                <div className='bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6'>
+                                <div className='bg-linear-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6'>
                                     <div className='flex items-center justify-between'>
                                         <div>
                                             <p className='text-gray-600 text-sm font-medium'>Tickets Verified</p>
@@ -490,7 +490,7 @@ const ProfilePage = () => {
                                         <CheckCircle className='text-green-600' size={40} />
                                     </div>
                                 </div>
-                                <div className='bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6'>
+                                <div className='bg-linear-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6'>
                                     <div className='flex items-center justify-between'>
                                         <div>
                                             <p className='text-gray-600 text-sm font-medium'>Verification Accuracy</p>

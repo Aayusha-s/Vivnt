@@ -103,6 +103,14 @@ export default function Navbar() {
       })
       .catch(() => undefined);
   }, [authenticated, noticesOpen]);
+  const openNotification = async (notice: Notice) => {
+    if (!notice.read) {
+      await fetch(`/api/notifications/${notice._id}`, { method: "PATCH" }).catch(() => undefined);
+      setNotices((current) => current.map((item) => item._id === notice._id ? { ...item, read: true } : item));
+      setUnread((current) => Math.max(0, current - 1));
+    }
+    setNoticesOpen(false);
+  };
   useEffect(() => {
     const close = (event: MouseEvent) => {
       if (
@@ -194,8 +202,8 @@ export default function Navbar() {
                           <Link
                             key={notice._id}
                             href={notice.link ?? "/notification"}
-                            onClick={() => setNoticesOpen(false)}
-                            className="block border-b border-divider px-4 py-3 hover:bg-primary-light"
+                            onClick={() => void openNotification(notice)}
+                            className={cn("block border-b border-divider px-4 py-3 hover:bg-primary-light", !notice.read && "bg-primary-light/50")}
                           >
                             <p className="text-sm font-semibold">
                               {notice.title}

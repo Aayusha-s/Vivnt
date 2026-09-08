@@ -191,7 +191,7 @@ export const updateEventApprovalStatus = async (event: EventDocument, approvalSt
 	if (approvalStatus === "approved" && event.status === "draft") event.status = "published";
 	await event.save();
 	const label = approvalStatus === "approved" ? "approved" : "rejected";
-	createNotification(event.organizer, "organizer_update", `Event ${label}`, `Your event '${event.title}' has been ${label} by an administrator.`, "/organizerdashboard").catch(console.error);
+	createNotification(event.organizer, "event_approval", `Event ${label}`, `Your event '${event.title}' has been ${label} by an administrator.`, "/organizerdashboard").catch(console.error);
 	if (approvalStatus === "approved" && event.allowVendorStalls) {
 		const { notifyVendorsOfStallOpening } = await import("@/services/vendors/vendor.service");
 		notifyVendorsOfStallOpening(event).catch(console.error);
@@ -221,7 +221,11 @@ export const updateEvent = async (event: EventDocument, input: Partial<EventInpu
 	const endDate = input.endDate ?? event.endDate;
 	if (endDate <= startDate) throw new HttpError(400, "endDate must be after startDate.", "VALIDATION_ERROR");
 	event.set(input);
-	return event.save();
+	const updated = await event.save();
+	if (Object.keys(input).length > 0) {
+		notifyTicketHolders(updated, "event_update", "Event updated", `The event '${updated.title}' has been updated by the organizer.`).catch(console.error);
+	}
+	return updated;
 };
 
 export const deleteEvent = (event: EventDocument) => event.deleteOne();
@@ -243,7 +247,16 @@ export const duplicateEvent = async (event: EventDocument, organizer: Types.Obje
 
 export const updateEventStatus = async (event: EventDocument, status: "draft" | "published" | "cancelled" | "completed") => {
 	event.status = status;
-	return event.save();
+	const updated = await event.save();
+	if (status === "cancelled") {
+		notifyTicketHolders(updated, "event_cancelled", "Event cancelled", `The event '${updated.title}' has been cancelled.`).catch(console.error);
+	}
+	return updated;
+};
+
+const notifyTicketHolders = async (event: EventDocument, type: "event_update" | "event_cancelled", title: string, message: string) => {
+	const ticketHolders = await Ticket.distinct("user", { event: event._id, ticketStatus: "active", paymentStatus: "paid" }).exec();
+	await Promise.all(ticketHolders.map((userId) => createNotification(userId, type, title, message, `/event-details/${event._id}`)));
 };
 
 export const getTrendingEvents = async (limit = 6) => {

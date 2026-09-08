@@ -131,7 +131,7 @@ export default function GalleryPage() {
                 </div>
             </div>
             {mounted && selectedImage && createPortal(
-                <div role='presentation' className='fixed inset-0 z-[1000] flex h-[100dvh] w-screen touch-none items-center justify-center overflow-hidden overscroll-none bg-black/85 p-4' onClick={() => setSelectedImage(null)}>
+                <div role='presentation' className='fixed inset-0 z-1000 flex h-dvh w-screen touch-none items-center justify-center overflow-hidden overscroll-none bg-black/85 p-4' onClick={() => setSelectedImage(null)}>
                     <button type='button' aria-label='Close image preview' onClick={() => setSelectedImage(null)} className='absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-2xl text-white transition-colors hover:bg-white/30'>
                         <i className='fa-solid fa-xmark' aria-hidden='true'></i>
                     </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Music,
@@ -142,7 +142,6 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -154,26 +153,20 @@ export default function CategoriesPage() {
         if (taxRes.success) setCategories(taxRes.data.categories);
         if (eventsRes.success) {
           setEvents(eventsRes.data.items);
-          setFilteredEvents(eventsRes.data.items);
         }
       })
       .finally(() => setLoading(false));
   }, []);
 
-  // Filter events by selected category
-  useEffect(() => {
-    if (selectedCategory) {
-      setFilteredEvents(
-        events.filter((event) =>
-          event.tags?.some((tag) =>
-            tag.toLowerCase().includes(selectedCategory.toLowerCase()),
-          ),
-        ),
-      );
-    } else {
-      setFilteredEvents(events);
-    }
-  }, [selectedCategory, events]);
+  const filteredEvents = useMemo(() => {
+    if (!selectedCategory) return events;
+
+    return events.filter((event) =>
+      event.tags?.some((tag) =>
+        tag.toLowerCase().includes(selectedCategory.toLowerCase()),
+      ),
+    );
+  }, [events, selectedCategory]);
 
   const selectedCategoryConfig = selectedCategory
     ? CATEGORY_CONFIG[selectedCategory.toLowerCase()] || {
@@ -185,9 +178,9 @@ export default function CategoriesPage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-white">
+    <div className="min-h-screen bg-linear-to-br from-background to-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-brown-light via-background to-white py-14 md:py-20 border-b border-border">
+      <section className="bg-linear-to-r from-brown-light via-background to-white py-14 md:py-20 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="font-dynapuff text-4xl md:text-5xl font-bold text-text-dark mb-4">
@@ -207,7 +200,7 @@ export default function CategoriesPage() {
         {/* Selected Category Info */}
         {selectedCategory && (
           <div
-            className={`mb-10 p-6 rounded-xl border border-border bg-gradient-to-r ${selectedCategoryConfig?.gradient} text-white`}
+            className={`mb-10 p-6 rounded-xl border border-border bg-linear-to-r ${selectedCategoryConfig?.gradient} text-white`}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -259,8 +252,8 @@ export default function CategoriesPage() {
                   }
                   className={`group relative overflow-hidden rounded-2xl p-6 text-white font-bold transition-all duration-300 ${
                     isSelected
-                      ? `bg-gradient-to-br ${config.gradient} ring-2 ring-white scale-105 shadow-2xl`
-                      : `bg-gradient-to-br ${config.gradient} hover:shadow-lg hover:scale-105`
+                      ? `bg-linear-to-br ${config.gradient} ring-2 ring-white scale-105 shadow-2xl`
+                      : `bg-linear-to-br ${config.gradient} hover:shadow-lg hover:scale-105`
                   }`}
                 >
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
@@ -376,7 +369,7 @@ export default function CategoriesPage() {
       </div>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-brown-normal to-brown-dark py-16 md:py-20 text-white mt-20">
+      <section className="bg-linear-to-r from-brown-normal to-brown-dark py-16 md:py-20 text-white mt-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-dynapuff text-3xl md:text-4xl font-bold mb-4">
             Have an event to share?

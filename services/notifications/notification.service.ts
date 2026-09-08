@@ -1,6 +1,8 @@
 import { Types } from "mongoose";
 import dbConnect from "@/lib/mongodb";
 import Notification, { INotification } from "@/models/Notification";
+import Ticket from "@/models/Ticket";
+import Event from "@/models/Event";
 
 export const createNotification = async (
   userId: Types.ObjectId | string,
@@ -41,6 +43,7 @@ export const getUserNotifications = async (
 ) => {
   await dbConnect();
   const userObjId = new Types.ObjectId(userId);
+  await createUpcomingEventReminders(userObjId);
   const skip = (page - 1) * pageSize;
   const filter: Record<string, unknown> = { user: userObjId };
   if (type) filter.type = type;
@@ -71,6 +74,26 @@ export const getUserNotifications = async (
     pageSize,
     totalPages: Math.ceil(total / pageSize),
   };
+};
+
+const createUpcomingEventReminders = async (userId: Types.ObjectId) => {
+  const now = new Date();
+  const within = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const tickets = await Ticket.find({ user: userId, ticketStatus: "active", paymentStatus: "paid" })
+    .distinct("event")
+    .exec();
+  if (!tickets.length) return;
+  const events = await Event.find({ _id: { $in: tickets }, status: "published", approvalStatus: "approved", startDate: { $gte: now, $lte: within } })
+    .select("title startDate")
+    .lean()
+    .exec();
+  await Promise.all(events.map((event) => createNotificationOnce(
+    userId,
+    "event_reminder",
+    `Event reminder: ${event.title}`,
+    `Your event starts on ${new Date(event.startDate).toLocaleString()}.`,
+    `/event-details/${event._id}`,
+  )));
 };
 
 export const deleteNotification = async (

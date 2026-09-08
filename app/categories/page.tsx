@@ -38,6 +38,23 @@ type Category = {
   count: number;
 };
 
+const toSentenceCase = (value: string) =>
+  value
+    .replaceAll("_", " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+
+const FALLBACK_GRADIENTS = [
+  "from-slate-500 to-slate-700",
+  "from-fuchsia-500 to-pink-600",
+  "from-cyan-500 to-blue-600",
+  "from-emerald-500 to-teal-600",
+  "from-amber-500 to-orange-600",
+  "from-violet-500 to-purple-700",
+];
+
 // Enhanced category mapping with better names and colors
 const CATEGORY_CONFIG: Record<
   string,
@@ -50,63 +67,63 @@ const CATEGORY_CONFIG: Record<
   }
 > = {
   music: {
-    label: "Music & Concerts",
+    label: "Music & concerts",
     icon: <Music className="w-8 h-8" />,
     color: "text-pink-600",
     gradient: "from-pink-500 to-rose-600",
     description: "Live performances and music events",
   },
   food: {
-    label: "Food & Drink",
+    label: "Food & drink",
     icon: <Utensils className="w-8 h-8" />,
     color: "text-orange-600",
     gradient: "from-orange-500 to-amber-600",
     description: "Culinary experiences and dining events",
   },
   business: {
-    label: "Business & Networking",
+    label: "Business & networking",
     icon: <Briefcase className="w-8 h-8" />,
     color: "text-blue-600",
     gradient: "from-blue-500 to-cyan-600",
     description: "Professional networking and conferences",
   },
   arts: {
-    label: "Arts & Theater",
+    label: "Arts & theater",
     icon: <Palette className="w-8 h-8" />,
     color: "text-purple-600",
     gradient: "from-purple-500 to-indigo-600",
     description: "Art exhibitions and theater shows",
   },
   sports: {
-    label: "Sports & Recreation",
+    label: "Sports & recreation",
     icon: <Trophy className="w-8 h-8" />,
     color: "text-green-600",
     gradient: "from-green-500 to-emerald-600",
     description: "Sports events and outdoor activities",
   },
   wellness: {
-    label: "Health & Wellness",
+    label: "Health & wellness",
     icon: <Heart className="w-8 h-8" />,
     color: "text-red-600",
     gradient: "from-red-500 to-pink-600",
     description: "Fitness and wellness programs",
   },
   technology: {
-    label: "Technology & Innovation",
+    label: "Technology & innovation",
     icon: <Code className="w-8 h-8" />,
     color: "text-indigo-600",
     gradient: "from-indigo-500 to-purple-600",
     description: "Tech talks and innovation events",
   },
   education: {
-    label: "Education & Learning",
+    label: "Education & learning",
     icon: <BookOpen className="w-8 h-8" />,
     color: "text-blue-700",
     gradient: "from-blue-600 to-blue-500",
     description: "Workshops and educational seminars",
   },
   community: {
-    label: "Community & Social",
+    label: "Community & social",
     icon: <Users className="w-8 h-8" />,
     color: "text-teal-600",
     gradient: "from-teal-500 to-green-600",
@@ -160,7 +177,7 @@ export default function CategoriesPage() {
 
   const selectedCategoryConfig = selectedCategory
     ? CATEGORY_CONFIG[selectedCategory.toLowerCase()] || {
-        label: selectedCategory,
+        label: toSentenceCase(selectedCategory),
         icon: <Zap />,
         color: "text-gray-600",
         gradient: "from-gray-500 to-gray-600",
@@ -224,12 +241,12 @@ export default function CategoriesPage() {
             Browse Categories
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {categories.map((category) => {
+            {categories.map((category, index) => {
               const config = CATEGORY_CONFIG[category.name.toLowerCase()] || {
-                label: category.name,
+                label: toSentenceCase(category.name),
                 icon: <Zap className="w-8 h-8" />,
                 color: "text-gray-600",
-                gradient: "from-gray-500 to-gray-600",
+                gradient: FALLBACK_GRADIENTS[index % FALLBACK_GRADIENTS.length],
                 description: "Events",
               };
 

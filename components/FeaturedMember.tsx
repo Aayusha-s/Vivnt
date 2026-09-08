@@ -2,6 +2,7 @@ import React from 'react'
 import UserAvatar from './UserAvatar';
 import Button from './Button';
 import { MessageCircle } from 'lucide-react';
+import { formatPersonName } from '@/utils/formatPersonName';
 
 type FeaturedMemberProps = {
     name?: string;
@@ -26,7 +27,7 @@ const FeaturedMember = ({
                 <UserAvatar nameAbv={name?.split(' ').map(n => n[0]).join('')} name={name} width={20} height={20} href={profileUrl}/>
 
                 <div className='flex flex-col gap-1'>
-                    <h3 className='text-text-dark mt-2 font-bold text-2xl text-center'>{name}</h3>
+                    <h3 className='text-text-dark mt-2 font-bold text-2xl text-center'>{formatPersonName(name)}</h3>
                     <p className='text-gray-500 font-medium text-md text-center'>{role}</p>
                     {/* <p className='text-gray-500 font-medium text-md text-center'>{role}</p> */}
 

@@ -85,6 +85,7 @@ export async function GET(request: Request) {
       .select(
         "_id title venue images tags description startDate ticketTypes organizer",
       )
+      .populate("organizer", "_id name")
       .sort(intent.sort === "newest" ? { createdAt: -1 } : { ticketsSold: -1, startDate: 1 })
       .limit(20)
       .lean(),

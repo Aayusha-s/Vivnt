@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import EventSocial from '@/components/EventSocial';
 import EventStalls from '@/components/EventStalls';
 import { getEventTimeStatus, isEventEnded } from '@/lib/event-status';
+import { formatPersonName } from '@/utils/formatPersonName';
 
 type TicketType = { name: string; price: number; quantity: number; description?: string };
 type EventData = {
@@ -18,6 +19,7 @@ type EventData = {
     capacity: number; status: string; tags: string[]; ticketsSold?: number;
     organizer?: { _id: string; name?: string; profileImage?: string };
 };
+type UploadedPhoto = { imageUrl: string };
 
 const formatDate = (value: string) => new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(new Date(value));
 const formatTime = (value: string) => new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(value));
@@ -30,8 +32,8 @@ const Page = () => {
     const [similarEvents, setSimilarEvents] = useState<EventData[]>([]);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
-    const [showAllPhotos, setShowAllPhotos] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
 
     useEffect(() => {
         if (!id) return;
@@ -48,6 +50,12 @@ const Page = () => {
                 if (!response.ok || !result.success) throw new Error('Unable to load event.');
                 if (!active) return;
                 setEvent(result.data);
+
+                const photosResponse = await fetch(`/api/photos?eventId=${id}`);
+                const photosResult = await photosResponse.json();
+                if (active && photosResponse.ok && photosResult.success) {
+                    setUploadedPhotos(photosResult.data);
+                }
 
                 const similarResponse = await fetch(`/api/events?category=${encodeURIComponent(result.data.category)}&status=published&pageSize=12`);
                 const similarResult = await similarResponse.json();
@@ -95,10 +103,13 @@ const Page = () => {
     if (loading) return <section className='py-16 px-4 text-center font-cause text-text-dark'>Loading event…</section>;
     if (notFound || !event) return <section className='py-16 px-4 text-center font-cause text-text-dark'><h1 className='font-dynapuff text-3xl font-bold'>Event not found</h1><p className='mt-3 text-text-dark/70'>This event may have been removed or the link is invalid.</p></section>;
 
-    const organizerName = event.organizer?.name ?? 'Event organizer';
+    const organizerName = formatPersonName(event.organizer?.name ?? 'Event organizer');
     const organizerHref = `/userprofile?userId=${event.organizer?._id ?? ''}`;
     const coverImage = event.images[0] ?? fallbackImage;
-    const galleryImages = event.images.length ? event.images : [fallbackImage];
+    const galleryImages = Array.from(new Set([
+        ...(event.images.length ? event.images : [fallbackImage]),
+        ...uploadedPhotos.map((photo) => photo.imageUrl),
+    ])).slice(0, 4);
     const hasCoordinates = typeof event.latitude === 'number' && typeof event.longitude === 'number' && (event.latitude !== 0 || event.longitude !== 0);
     const readableLocation = event.venue?.trim();
     const mapQuery = readableLocation || (hasCoordinates ? `${event.latitude},${event.longitude}` : '');
@@ -214,18 +225,16 @@ const Page = () => {
                         {/* Photos Gallery */}
                         <div className='border-t pt-8 space-y-4'>
                             <div className='flex items-center justify-between'>
-                                <h2 className='text-2xl font-bold font-dynapuff'>Gallery</h2>
-                                {galleryImages.length > 5 && (
-                                    <button onClick={() => setShowAllPhotos(!showAllPhotos)} className='text-brown-normal font-semibold hover:text-brown-dark transition-colors'>
-                                        {showAllPhotos ? 'Show Less' : 'View All'}
-                                    </button>
-                                )}
+                                <Link href={`/event-details/${event._id}/gallery`} className='text-2xl font-bold font-dynapuff hover:text-brown-normal transition-colors'>Gallery</Link>
+                                <Link href={`/event-details/${event._id}/gallery`} className='text-brown-normal font-semibold hover:text-brown-dark transition-colors'>
+                                    View All
+                                </Link>
                             </div>
                             <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
-                                {galleryImages.slice(0, showAllPhotos ? galleryImages.length : 6).map((image, index) => (
-                                    <div key={`${image}-${index}`} className='aspect-square rounded-lg overflow-hidden bg-gray-200 hover:shadow-lg transition-shadow'>
-                                        <img src={image} alt={`${event.title} ${index + 1}`} className='w-full h-full object-cover hover:scale-110 transition-transform duration-300' />
-                                    </div>
+                                {galleryImages.slice(0, 6).map((image, index) => (
+                                    <Link href={`/event-details/${event._id}/gallery`} key={`${image}-${index}`} className='block aspect-square overflow-hidden rounded-lg bg-gray-200 hover:shadow-lg transition-shadow'>
+                                        <img src={image} alt={`${event.title} ${index + 1}`} className='!block !h-full !w-full object-cover hover:scale-110 transition-transform duration-300' />
+                                    </Link>
                                 ))}
                             </div>
                         </div>

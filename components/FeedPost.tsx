@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Button from './Button'
 import { Heart, MessageCircle, SquareArrowOutUpRight, User } from 'lucide-react';
 import UserAvatar from './UserAvatar';
+import { formatPersonName } from '@/utils/formatPersonName';
 
 
 type FeedPostProps = {
@@ -42,7 +43,7 @@ const FeedPost = ({
                     <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
                         <div >
                             <Link href={profileUrl ?? `/userprofile?username=${encodeURIComponent((name ?? '').toLowerCase().replace(/\s+/g, '-'))}`}>
-                                <h3 className='font-semibold text-text-dark hover:text-brown-normal-hover'>{name}</h3>
+                                <h3 className='font-semibold text-text-dark hover:text-brown-normal-hover'>{formatPersonName(name)}</h3>
                             </Link>
 
                             <div className='flex flex-row items-center'>

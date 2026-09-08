@@ -17,6 +17,7 @@ import Searchbar from "@/components/Searchbar";
 import Button from "@/components/Button";
 import { cn } from "@/lib/utils";
 import { UserRole } from "@/types";
+import { formatPersonName } from "@/utils/formatPersonName";
 
 type Notice = {
   _id: string;
@@ -248,7 +249,7 @@ export default function Navbar() {
                 {profileOpen && role && (
                   <div className="absolute right-0 top-12 w-72 overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
                     <div className="border-b border-divider px-4 py-4">
-                      <p className="font-semibold">{displayName}</p>
+                      <p className="font-semibold">{formatPersonName(displayName)}</p>
                       <p className="text-xs capitalize text-primary">
                         {role.replace("_", " ")}
                       </p>

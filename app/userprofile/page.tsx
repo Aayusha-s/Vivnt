@@ -28,6 +28,7 @@ import {
     QrCode,
     AlertCircle,
 } from 'lucide-react'
+import { formatPersonName } from '@/utils/formatPersonName'
 import Button from '@/components/Button'
 import EventCard from '@/components/EventCard'
 
@@ -190,7 +191,7 @@ const ProfilePage = () => {
 
                 <div className='flex-1 space-y-3'>
                     <div>
-                        <h1 className='text-2xl md:text-3xl font-bold'>{profile.user.name ?? 'User'}</h1>
+                        <h1 className='text-2xl md:text-3xl font-bold'>{formatPersonName(profile.user.name ?? 'User')}</h1>
                         <p className='text-gray-500 text-lg capitalize'>{profile.user.role ?? 'attendee'}</p>
                     </div>
 
@@ -325,7 +326,7 @@ const ProfilePage = () => {
                                         imageUrl={event.images?.[0] ?? fallbackImage}
                                         imageAlt={event.title}
                                         title={event.title}
-                                        organizer={`By ${profile.user.name ?? 'Event organizer'}`}
+                                        organizer={`By ${formatPersonName(profile.user.name ?? 'Event organizer')}`}
                                         descriptions={[event.description]}
                                         location={event.venue}
                                         price={event.ticketTypes?.some((ticket) => ticket.price === 0) ? 'Free' : `From Rs.${Math.min(...event.ticketTypes.map((ticket) => ticket.price))}`}
@@ -346,7 +347,7 @@ const ProfilePage = () => {
                                         imageUrl={event.images?.[0] ?? fallbackImage}
                                         imageAlt={event.title}
                                         title={event.title}
-                                        organizer={`By ${profile.user.name ?? 'Event organizer'}`}
+                                        organizer={`By ${formatPersonName(profile.user.name ?? 'Event organizer')}`}
                                         descriptions={[event.description]}
                                         location={event.venue}
                                         price={event.ticketTypes?.some((ticket) => ticket.price === 0) ? 'Free' : `From Rs.${Math.min(...event.ticketTypes.map((ticket) => ticket.price))}`}

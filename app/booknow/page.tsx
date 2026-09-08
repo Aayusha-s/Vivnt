@@ -5,6 +5,7 @@ import { Calendar, Check, Clock, MapPin } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import { formatPersonName } from "@/utils/formatPersonName";
 
 type TicketType = {
   name: string;
@@ -229,7 +230,7 @@ function BookNowContent() {
             <div className="flex flex-col">
               <h1 className="text-xl font-semibold my-2">{event.title}</h1>
               <p className="text-sm mb-2">
-                Hosted by {event.organizer?.name ?? "Event organizer"} •{" "}
+                Hosted by {formatPersonName(event.organizer?.name ?? "Event organizer")} •{" "}
                 {remainingCapacity} seats left
               </p>
               <div className="flex flex-col gap-2">

@@ -5,6 +5,7 @@ import Button from "@/components/Button";
 import ReviewPopup from "@/components/ReviewPopup";
 import ModalOverlay from "@/components/ModalOverlay";
 import Link from "next/link";
+import { formatPersonName } from "@/utils/formatPersonName";
 
 type Review = { _id: string; rating: number; text: string; createdAt: string; user: { _id: string; name: string } };
 type Comment = { _id: string; parent?: string; text: string; createdAt: string; likes: string[]; dislikes: string[]; user: { _id: string; name: string } };
@@ -174,7 +175,7 @@ export default function EventSocial({ eventId }: { eventId: string }) {
 					<div key={review._id} className='border-b border-brown-normal/30 pb-3'>
 						<div className='flex justify-between items-start'>
 							<Link href={userLink(review.user._id)} className='font-semibold text-brown-normal hover:text-brown-dark transition-colors'>
-								{review.user.name}
+								{formatPersonName(review.user.name)}
 							</Link>
 							{session?.user?.id === review.user._id && (
 								<div className='flex gap-2'>

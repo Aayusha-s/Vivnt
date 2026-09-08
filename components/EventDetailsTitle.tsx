@@ -1,4 +1,5 @@
 import Button from "./Button";
+import { formatPersonName } from "@/utils/formatPersonName";
 
 type EventDetailsTitleProps = {
     id?: number;
@@ -49,7 +50,7 @@ const EventDetailsTitle = (
                                 p-3 flex items-center justify-center'>
                             <i className="fa-solid fa-user text-2xl"></i>
                         </div>
-                        <p className='ml-2'>Hosted by <span className='font-semibold font-dynapuff'>{organizerName}</span></p>
+                        <p className='ml-2'>Hosted by <span className='font-semibold font-dynapuff'>{formatPersonName(organizerName)}</span></p>
                     </div>
                     <div>
                         <Button

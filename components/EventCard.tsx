@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useTilt } from "@/hooks/use-tilt";
 import { useEffect, useState } from "react";
 import { isEventEnded } from "@/lib/event-status";
+import { formatPersonName } from "@/utils/formatPersonName";
 
 type EventCardProps = {
     eventId: string | number;
@@ -102,21 +103,21 @@ const EventCard = ({
                         <Calendar className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="line-clamp-2 text-base font-semibold leading-snug text-text-dark transition-colors duration-200 group-hover:text-brown-darker">
+                        <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-semibold leading-snug text-text-dark transition-colors duration-200 group-hover:text-brown-darker">
                             {title}
                         </h3>
-                        <p className="mt-0.5 truncate text-sm text-text-muted">{organizer}</p>
+                        <p className="mt-0.5 truncate text-sm text-text-muted">{formatPersonName(organizer)}</p>
                     </div>
                 </div>
 
-                <ul className="mb-4 space-y-1.5 text-sm text-text-light">
+                <ul className="mb-4 min-h-[3.75rem] space-y-1.5 overflow-hidden text-sm text-text-light">
                     {descriptions.slice(0, 3).map((desc) => (
                         <li key={desc} className="flex items-start gap-2">
                             <ChevronRight
                                 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brown-normal transition-transform duration-200 group-hover:translate-x-0.5"
                                 aria-hidden="true"
                             />
-                            <span>{desc}</span>
+                            <span className="line-clamp-2">{desc}</span>
                         </li>
                     ))}
                 </ul>

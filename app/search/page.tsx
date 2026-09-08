@@ -16,6 +16,7 @@ import {
     ArrowRight,
 } from 'lucide-react'
 import Button from '@/components/Button'
+import { formatPersonName } from '@/utils/formatPersonName'
 
 type Event = {
     _id: string
@@ -167,7 +168,7 @@ const SearchResultsPage = () => {
                         <Search size={48} className='mx-auto text-gray-300 mb-4' />
                         <h2 className='text-2xl font-bold text-gray-600 mb-2'>No results found</h2>
                         <p className='text-gray-500 mb-6'>
-                            We couldn't find any events or people matching "{query}"
+                            We couldn&apos;t find any events or people matching &quot;{query}&quot;
                         </p>
                         <Link href='/explore-events' className='text-blue-600 hover:text-blue-700 font-medium'>
                             Browse all events →
@@ -186,7 +187,7 @@ const SearchResultsPage = () => {
             <div className='max-w-6xl mx-auto'>
                 {/* Search Bar */}
                 <div className='mb-8'>
-                    <h1 className='font-dynapuff text-3xl md:text-4xl font-bold mb-4'>Search Results for "{query}"</h1>
+                    <h1 className='font-dynapuff text-3xl md:text-4xl font-bold mb-4'>Search Results for &quot;{query}&quot;</h1>
                     <form onSubmit={handleSearch} className='flex gap-2'>
                         <input
                             type='text'
@@ -245,10 +246,18 @@ const SearchResultsPage = () => {
                         {eventCount > 0 ? (
                             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                                 {results.events.map((event) => (
-                                    <Link
+                                    <article
                                         key={event._id}
-                                        href={`/event-details/${event._id}`}
-                                        className='group border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300'
+                                        onClick={() => router.push(`/event-details/${event._id}`)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault()
+                                                router.push(`/event-details/${event._id}`)
+                                            }
+                                        }}
+                                        role='link'
+                                        tabIndex={0}
+                                        className='group cursor-pointer rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300'
                                     >
                                         <div className='relative overflow-hidden bg-gray-200 h-48'>
                                             <img
@@ -288,7 +297,7 @@ const SearchResultsPage = () => {
                                                     </div>
                                                 )}
                                                 <div className='flex items-center gap-2'>
-                                                    <MapPin size={16} />
+                                                    <MapPin size={45} />
                                                     <span className='line-clamp-1'>{event.venue}</span>
                                                 </div>
                                                 {event.ticketTypes && event.ticketTypes.length > 0 && (
@@ -310,12 +319,12 @@ const SearchResultsPage = () => {
                                                         className='text-sm text-blue-600 hover:text-blue-700 font-medium'
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
-                                                        By {event.organizer.name}
+                                                        By {formatPersonName(event.organizer.name)}
                                                     </Link>
                                                 </div>
                                             )}
                                         </div>
-                                    </Link>
+                                    </article>
                                 ))}
                             </div>
                         ) : (

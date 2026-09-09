@@ -55,10 +55,14 @@ export const updateVendorProfile = async (ownerId: Types.ObjectId | string, data
 	return Vendor.findOneAndUpdate({ owner: new Types.ObjectId(ownerId) }, { $set: data }, { new: true, runValidators: true }).exec();
 };
 
-export const listVendors = async (page = 1, pageSize = 20, status?: string) => {
+export const listVendors = async (page = 1, pageSize = 20, status?: string, search?: string) => {
 	await dbConnect();
 	const match: Record<string, unknown> = {};
 	if (status) match.approvalStatus = status;
+	if (search) {
+		const pattern = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+		match.$or = [{ businessName: pattern }, { category: pattern }];
+	}
 
 	const skip = (page - 1) * pageSize;
 	const [items, total] = await Promise.all([
@@ -67,6 +71,14 @@ export const listVendors = async (page = 1, pageSize = 20, status?: string) => {
 	]);
 
 	return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+};
+
+export const getVendorById = async (vendorId: Types.ObjectId | string) => {
+	await dbConnect();
+	return Vendor.findById(vendorId)
+		.populate("owner", "name email phone profileImage location")
+		.populate("stallBookings.event", "title venue startDate endDate")
+		.exec();
 };
 
 export const updateVendorApprovalStatus = async (vendorId: Types.ObjectId | string, approvalStatus: "approved" | "rejected") => {

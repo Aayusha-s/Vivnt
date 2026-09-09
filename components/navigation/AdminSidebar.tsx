@@ -38,7 +38,7 @@ const items = [
   {
     section: "Management",
     label: "Vendors",
-    href: "/admin/approvals#vendors",
+    href: "/admin/vendors",
     icon: Store,
     count: "pendingVendors" as const,
   },

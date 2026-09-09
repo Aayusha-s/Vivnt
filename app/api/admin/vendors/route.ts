@@ -13,8 +13,9 @@ export async function GET(request: Request) {
       Math.max(1, parseInt(searchParams.get("pageSize") ?? "20", 10)),
     );
     const status = searchParams.get("status") || undefined;
+    const search = searchParams.get("search") || undefined;
 
-    const result = await listVendors(page, pageSize, status);
+    const result = await listVendors(page, pageSize, status, search);
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
     if (error instanceof HttpError) {

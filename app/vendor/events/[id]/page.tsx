@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, MapPin, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Calendar, Clock3, MapPin, Ticket, TriangleAlert } from "lucide-react";
 import Button from "@/components/Button";
 import Map from "@/components/Map";
 
@@ -101,7 +101,7 @@ export default function VendorEventDetails({
   const mapUrl = data?.event ? getMapUrl(data.event) : undefined;
 
   return (
-    <section className="my-4 mx-2 px-4 font-cause text-text-dark md:mx-3 lg:mx-4 xl:mx-6">
+    <section className="app-page font-cause text-text-dark">
       <Link href="/vendor/events">
         <Button
           text="Back to My Events"
@@ -118,8 +118,9 @@ export default function VendorEventDetails({
       )}
       {!data && !error && <p className="mt-6">Loading assigned event...</p>}
       {data && (
-        <article className="mt-6 overflow-hidden rounded-xl border border-brown-normal bg-white">
-          <div className="relative h-64 bg-brown-light md:h-80 lg:h-[420px]">
+        <article className="surface-elevated mt-5 overflow-hidden">
+          <div className="grid lg:grid-cols-[minmax(220px,32%)_1fr]">
+          <div className="relative h-52 bg-brown-light sm:h-64 lg:h-full lg:min-h-[260px]">
             {data.event.images?.[0] ? (
               <img
                 src={data.event.images[0]}
@@ -133,7 +134,7 @@ export default function VendorEventDetails({
                 className="h-full w-full object-cover"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
             <div className="absolute left-4 top-4 flex flex-wrap gap-2">
               <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-text-dark">
                 Assigned event
@@ -144,13 +145,13 @@ export default function VendorEventDetails({
             </div>
           </div>
 
-          <div className="p-5 md:p-8">
+          <div className="min-w-0 p-5 md:p-7">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-sm capitalize text-text-light">
                   {data.event.category}
                 </p>
-                <h1 className="font-dynapuff text-2xl font-bold md:text-3xl">
+                <h1 className="mt-1 font-dynapuff text-2xl font-bold leading-tight md:text-3xl">
                   {data.event.title}
                 </h1>
               </div>
@@ -159,73 +160,70 @@ export default function VendorEventDetails({
               </span>
             </div>
 
-            <div className="mt-6 grid gap-4 rounded-xl bg-brown-light p-4 md:grid-cols-2">
-              <p>
-                <Calendar className="mr-2 inline" size={18} />
-                <b>Starts:</b> {new Date(data.event.startDate).toLocaleString()}
+            <div className="mt-5 grid gap-2 border-y border-border py-4 text-sm sm:grid-cols-2">
+              <p className="flex items-start gap-2">
+                <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span><b>Starts</b><br />{new Date(data.event.startDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</span>
               </p>
-              <p>
-                <Calendar className="mr-2 inline" size={18} />
-                <b>Ends:</b> {new Date(data.event.endDate).toLocaleString()}
+              <p className="flex items-start gap-2">
+                <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span><b>Ends</b><br />{new Date(data.event.endDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</span>
               </p>
-              <p>
-                <MapPin className="mr-2 inline" size={18} />
-                <b>Location:</b>{" "}
+              <p className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span><b>Location</b><br />
                 {data.event.isOnline ? "Online event" : data.event.venue || "Location unavailable"}
+                </span>
               </p>
-              <p>
-                <b>Organizer:</b>{" "}
-                {data.event.organizer?.name ?? "Event organizer"}
+              <p><b>Organizer</b><br />{data.event.organizer?.name ?? "Event organizer"}
               </p>
               {data.stallName && (
-                <p>
-                  <b>Your stall:</b> {data.stallName}
+                <p><b>Your stall</b><br />{data.stallName}
                 </p>
               )}
-              <p>
-                <b>Event status:</b>{" "}
+              <p><b>Event status</b><br />
                 <span className="capitalize">{data.event.status}</span>
               </p>
             </div>
 
-            <div className="mt-8 grid gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 md:grid-cols-2">
+            <div className="mt-5 grid gap-2 rounded-xl bg-background p-3 sm:grid-cols-2 lg:grid-cols-4">
               {details.map((item) => (
-                <div key={item.label} className="rounded-lg border border-gray-200 bg-white p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-text-light">
+                <div key={item.label} className="rounded-lg border border-border bg-surface p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-light">
                     {item.label}
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-text-dark">{item.value}</p>
+                  <p className="mt-1 text-xs font-semibold leading-snug text-text-dark">{item.value}</p>
                 </div>
               ))}
             </div>
 
             {mapUrl && (
-              <div className="mt-8">
+              <div className="mt-6">
                 <Map mapId={1} mapUrl={mapUrl} />
               </div>
             )}
 
-            <div className="mt-8">
-              <h2 className="font-dynapuff text-xl">Event Description</h2>
-              <p className="mt-2 whitespace-pre-wrap leading-relaxed text-text-light">
+            <div className="mt-6 border-t border-border pt-5">
+              <h2 className="font-dynapuff text-lg">Event Description</h2>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-text-light">
                 {data.event.description}
               </p>
             </div>
 
             {data.event.ticketTypes && data.event.ticketTypes.length > 0 && (
-              <div className="mt-8">
-                <h2 className="font-dynapuff text-xl">Tickets</h2>
-                <div className="mt-4 space-y-3">
+              <div className="mt-6 border-t border-border pt-5">
+                <h2 className="font-dynapuff text-lg"><Ticket className="mr-2 inline h-5 w-5 text-primary" />Tickets</h2>
+                <div className="mt-3 space-y-2">
                   {data.event.ticketTypes.map((ticket) => (
-                    <div key={`${ticket.name}-${ticket.price}`} className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <div key={`${ticket.name}-${ticket.price}`} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background p-3">
                       <div>
                         <p className="font-semibold text-text-dark">{ticket.name}</p>
                         {ticket.description && (
                           <p className="mt-1 text-sm text-text-light">{ticket.description}</p>
                         )}
-                        <p className="mt-2 text-xs text-text-light">{ticket.quantity} available</p>
+                        <p className="mt-1 text-xs text-text-light">{ticket.quantity} available</p>
                       </div>
-                      <p className="text-lg font-bold text-brown-normal">
+                      <p className="text-sm font-bold text-brown-normal">
                         {ticket.price === 0 ? "Free" : `Rs. ${ticket.price.toLocaleString()}`}
                       </p>
                     </div>
@@ -233,6 +231,7 @@ export default function VendorEventDetails({
                 </div>
               </div>
             )}
+          </div>
           </div>
         </article>
       )}
